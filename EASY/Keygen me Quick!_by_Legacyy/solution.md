@@ -1,5 +1,8 @@
+Crackme's link: https://crackmes.one/crackme/60d65d0833c5d410b8843014
 
-https://crackmes.one/crackme/60d65d0833c5d410b8843014
+Overview: Serial Keygenme
+
+Note: Key/Password are used there as the same thing
 
 ## Initial Analysis
 
@@ -60,8 +63,8 @@ undefined4 __cdecl checkFormat(char *param_1)
 
 This function validates that the input follows the pattern `XXXX-XXXX-XXXX`:
 - The total length must be exactly 14 characters (0xe in hex)
-- Character at position 4 must be a hyphen
-- Character at position 9 must be a hyphen
+- Character at position 5  (index 4) must be a hyphen
+- Character at position 10 (index 9) must be a hyphen
 
 **Important Note**: There's a subtle implementation detail here. The function checks for a length of 14, but due to how the input is processed, the validation can succeed even if the last character is missing, making the minimum effective length 13 characters.
 
@@ -88,7 +91,7 @@ int __cdecl checkOne(int param_1)
 }
 ```
 
-This check ensures that the first four characters (positions 0-3) are all digits between '0' and '9'. Each character is compared against the ASCII values of '0' and '9' to verify it falls within the valid digit range.
+This check ensures that first four characters are all digits between '0' and '9'. Each character is compared against the ASCII values of '0' and '9' to verify it falls within the valid digit range.
 
 ### Second Check (`checkTwo`)
 
@@ -113,7 +116,7 @@ int __cdecl checkTwo(int param_1)
 }
 ```
 
-This function performs a bitwise AND operation with 1 on each character in positions 5-8. For the check to pass, all characters in this block must have even ASCII values. Since the ASCII values of digits '0', '2', '4', '6', and '8' are even (48, 50, 52, 54, 56), only these even digits will satisfy this condition.
+This function performs a bitwise AND operation with 1 on each character indexed by 5-8. To pass the check - all characters in this block must have even ASCII values. Since the ASCII values of digits '0', '2', '4', '6', and '8' are even (48, 50, 52, 54, 56), only these even digits will satisfy this condition.
 
 ### Third Check (`checkThree`)
 
@@ -134,7 +137,16 @@ int __cdecl checkThree(int param_1)
 }
 ```
 
-This check compares the substring starting at position 10 (the third block) with the literal string "R3KT". The `strcmp` function returns 0 when the strings are identical, so the check passes only when the third block exactly matches "R3KT".
+This check compares the substring starting at index 10 (the third block) with the hardcoded string "R3KT". The `strcmp` function returns 0 when the strings are identical, so the check passes only when the third block exactly matches "R3KT".
+
+There is tricky implementation issue:
+- Crackme uses `fgets`, which places `\n` in the end of string　(because of pressed enter).
+- `strlen` `strcmp` work until `\0` (null terminator), but they also count `\n`. 
+- It turns out that we can enter 13 bytes, but got 14. So length check is satisfied, while `strcmp` will check only bytes until null terminator, so that last character of hardcoded string is thrown away.
+
+**But why if we put 14 bytes - it still works?**
+
+- We write 14 bytes + byte "Enter". But code has buffer that can contain only 14 bytes so that `\0` cannot be placed in the end. So that last "Enter char is thrown away, while `\0` is placed. 
 
 ## Solution Strategy
 
@@ -143,16 +155,11 @@ Based on the analysis of all validation functions, a valid password must satisfy
 1. **Format**: Follow the pattern `XXXX-XXXX-XXXX` (with potential flexibility on the last character)
 2. **First Block**: Contain exactly four digits (0-9)
 3. **Second Block**: Contain exactly four characters with even ASCII values (0, 2, 4, 6, 8)
-4. **Third Block**: Must be exactly "R3KT"
+4. **Third Block**: Must be exactly "R3KT" or "R3K"
 
 The simplest valid password that satisfies all conditions is: `0000-0000-R3KT`
 
-This works because:
-- '0' is a valid digit for the first check
-- '0' has an even ASCII value (48) for the second check
-- "R3KT" exactly matches the required string for the third check
-
-## Keygen Implementation
+## Default Keygen Implementation
 
 
 ```python

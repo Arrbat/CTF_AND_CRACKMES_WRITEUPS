@@ -1,26 +1,29 @@
-https://crackmes.one/crackme/5ab77f6333c5d40ad448ca8c
+Crackme's link: https://crackmes.one/crackme/5ab77f6333c5d40ad448ca8c
 
-Tool: Ghidra
-Second func in entry() is like basic app initialization. And here is the func main in the end.  (I renamed values and funcs)
+Overview: Simple userid and password checker
+
+Second func in entry() is like basic app initialization. And here is the func main in the end.  (I renamed values and funcs for readability)
+
 ```c
 returncodeMAIN = main();
 ```
 
-Here in main there is a lot of code, but the most interesting part is where string ` C:\\userid:` located . 
-So here it is printed and by using `gets()` waits for user\`s input. 
+`main` contains a lot of code, but the most interesting part is where string ` C:\\userid:` located. 
+It is printed and by using `gets()` waits for user's input:
 
 ```c
-  print?((int *)cout_exref,"C:\\userid:");
+  print?((int *)cout_exref,"C:\\userid:"); /* Some custom print or modificated one used, so that I renamed it to `print?` */
   gets(useridINPUT);
 ```
 
-In ahead there is the same, but with password
+Same logic with password:
+
 ```c
   print?((int *)cout_exref,"C:\\passid:");
   gets((char *)passINPUT);
 ```
 
-And also you may find in the end validation code, you may be sure it is validation because of its strings:
+Also there is validation code, you may be sure it is validation because of used strings.
 
 ```c
 validation:
@@ -34,34 +37,36 @@ validation:
   gets(useridINPUT);
 ```
 
+There is strange comprasion, which says "if address `useridINPUT2 + - 6` is placed "lower" than
+`0x4` - statement is true. But it does nothing useful in practice and furthemore, `userid` may be everything, but it does not influence on calculations or code, or solution. Likely it is the artifact of compiler or crackme is not completed.
 
-So let\`s see what the code does with inputed userid
 ```c
 if (useridINPUT2 + -6 < (char *)0x4)
 ```
-it just checks if our input is less than 4 or is above 6. But yeah, this statement looks strange little bit.
 
-And if it is between 4 and 6 then it executes code ahead, but if not - the correct password will consist of these chars:
+Since statement will be false mostly always (because strings are located higher than 0x4 in memory) we move ahead.
+If false, the password is following (`invalid input`):
+
 ```c
   else {
-    invalidi-inputSTRING[0] = 'i';
-    invalidi-inputSTRING[1] = 'n';
-    invalidi-inputSTRING[2] = 'v';
-    invalidi-inputSTRING[3] = 'a';
-    invalidi-inputSTRING[4] = 'l';
-    invalidi-inputSTRING[5] = 'i';
-    invalidi-inputSTRING[6] = 'd';
-    invalidi-inputSTRING[7] = ' ';
-    invalidi-inputSTRING[8] = 'i';
-    invalidi-inputSTRING[9] = 'n';
-    invalidi-inputSTRING[10] = 'p';
+    invalidi-inputSTRING[0]   = 'i';
+    invalidi-inputSTRING[1]   = 'n';
+    invalidi-inputSTRING[2]   = 'v';
+    invalidi-inputSTRING[3]   = 'a';
+    invalidi-inputSTRING[4]   = 'l';
+    invalidi-inputSTRING[5]   = 'i';
+    invalidi-inputSTRING[6]   = 'd';
+    invalidi-inputSTRING[7]   = ' ';
+    invalidi-inputSTRING[8]   = 'i';
+    invalidi-inputSTRING[9]   = 'n';
+    invalidi-inputSTRING[10]  = 'p';
     invalidi-inputSTRING[0xb] = 'u';
-    uStack_108 = 0x74;
+    uStack_108 = 0x74; /* aka `t` */
   }
 ```
-the last char equals to `t`
 
-Here code check if password equals to string above:
+Сode checks if password equals to string above:
+
 ```c
 LAB_00401ff4:
       iVar6 = (1 - (uint)bVar7) - (uint)(bVar7 != 0);
@@ -77,11 +82,8 @@ LAB_00401ff4:
   iVar6 = 0;
 ```
 
-Ivar is used for validation, if it =0 then we got congratulations message.
+`iVar6` is used for validation, if it equals to zero then we got congratulations message.
 
+Since the logic is like broken or incomplete (at least supposed so) it happens that userid normally does not matter. So only password must be right. 
 
-But what if our userid is between 4 and 6 (length)?
-In that case, the program proceeds to more complex logic (involving threads and calls to functions like FUN_00401740()), which likely computes or validates the correct password dynamically. That part is less clear here, but essentially the password is the same: "invalid input" (without quotes, with space).
-
-
-## So solution: userid is not matter, password always equals to "invalid input"
+### Solution, password: "invalid input"
