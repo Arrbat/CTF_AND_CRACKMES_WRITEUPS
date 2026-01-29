@@ -1,5 +1,5 @@
-# There my solved CTF challenges and crackmes
+# Writeups on different crackmes/CTF challenges with scripts, rules or different goals of analysis (if applicable)
 
-## Solutions and writeups provided. 
+- Root Directories are named due to challenges difficulty
+- Every challenge has own directory where writeup (.md), crackme, and possible analysis artifacts are provided
 
-## I locate crackmes/challenges due to my opinion about its difficulty or quality. 
