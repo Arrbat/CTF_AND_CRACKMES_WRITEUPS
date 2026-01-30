@@ -1,5 +1,10 @@
 
-https://crackmy.app/crackmes/very-hard-challenge-by-sdklekip667-59585
+Crackme's link: https://crackmy.app/crackmes/very-hard-challenge-by-sdklekip667-59585
+
+
+Overview: Password checker
+
+---
 
 `main()` initializes the program and prints "please enter the key:".
 
@@ -46,6 +51,7 @@ longlong * FUN_00401639(longlong *param_1,undefined8 *param_2,int param_3)
 ```
 
 Once the transformation is complete, the result is compared with the correct answer using FUN_0049fbe0.
+
 ```c
 
 undefined8 FUN_0049fbe0(undefined8 *param_1,undefined8 *param_2)

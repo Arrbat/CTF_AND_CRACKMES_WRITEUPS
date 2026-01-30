@@ -1,28 +1,40 @@
 
-https://crackmy.app/crackmes/tweetys-serialme-by-tweety100-by-crackmes-de-97185
+Crackme's link: https://crackmy.app/crackmes/tweetys-serialme-by-tweety100-by-crackmes-de-97185
+
+Overview: GUI Serial checker
+
+---
 
 Logic description shortly: app waits for input for 3 fields - Name, First Serial, Second Serial. Handles it and then must say if input is valid or not. 
 
->Also i renamed some variables and funcs for better understanding. `?` is there because i suppose that variable of func does some thing or plays concrete role, but we can not be sure before checking it on practise
+>Also i renamed some variables and funcs for better understanding. `?` is there because i suppose that variable of func does some thing or plays concrete role, but we can not be sure before checking it
+
 ---
-## Loaded in PE-BEAR for check: (not needed tool there, same may be done in Ghidra for example)
-Based on strings it was built with GCC. And main strings related to where input is handled - are not hidden. Also this program is kinda old - year 2010.
+
+## Loaded in PE-BEAR (same may be done in Ghidra or any other similar tool)
+
+Based on strings it was built with GCC. And main strings related to where input is handled - are not hidden. Also this program is old - year 2010.
+
 Imports:
 -KERNEL32.dll
 -msvcrt.dll
 
 Conclusion: nothing special.
+
 ## Loaded in Ghidra:
+
 Completed auto-analysis.
+
 In entry there is only one called func. 
 This func just makes system init like. In the end there is main() function, which is the most interesting
+
 ```c++
 uExitCode = FUN_004013bc(); //main() called
 ```
 
-Before checking input, app just uses something like prinf and scanf to print text and to get user\`s input.
+Before checking input, app uses custom printf/scanf implementation (or wrapper).
 
-In main I see where our input is proceed and most likely being correct. The "correct" block of code is:
+In main we see where our input is proceed and most likely being correct. The "correct" block of code is:
 
 ```c++
   if (local_84 == uVar3) { // inputed_first_serial == calculated_first_serial
@@ -58,7 +70,8 @@ In main I see where our input is proceed and most likely being correct. The "cor
 ```
 
 I suppose that `local_2c` is the `Name`, because before condition statement this variable was used in getting input from user after printing the "Name:". 
-Also program ends with `Wrong input.` - if first serial is incorrect, without checking the second (because first is used to calculate the second). So I can say due to this logic that `local_84` is First Serial, `local_88` is Second Serial; `uVar3` and `uVar2` are correct precalculated serials. 
+
+Also program ends with `Wrong input.` - if first serial is incorrect, without checking the second (because first is used to calculate the second, so if first is not correct - second will be incorrect automatically). So, suppose `local_84` is First Serial, `local_88` is Second Serial; `uVar3` and `uVar2` are correct precalculated serials. 
 
 So let\`s come back to what was before these statements:
 
@@ -73,6 +86,7 @@ So let\`s come back to what was before these statements:
 ```
 
 We can see that `Name` is used for calculations. And seems like `FUN_0040138e` returns something based on name.
+
 ```c++
 
 int __cdecl FUN_0040138e(undefined4 *param_1)
@@ -91,9 +105,11 @@ int __cdecl FUN_0040138e(undefined4 *param_1)
   return iVar1;
 }
 ```
-It is like "The sum of the ASCII character values of the name."
 
-So now i can rewrite logic like that (we do not patching the program logic):
+It could be understood like "The sum of the ASCII character values of the name."
+
+So now I can rewrite logic like that (we do not patching the program logic):
+
 ```c++
 //First serial
 uVar3 = (sum * 0x1f) / 0x275 + 0x2a5f828;
@@ -109,7 +125,8 @@ while (uVar2 > 99999)
   uVar2 /= 10;
 ```
 
-so the main statement is like this:
+So the main statement is like this:
+
 ```c++
 if (first_serial == uVar3 && second_serial == uVar2)
 ```
@@ -157,6 +174,4 @@ Input correct. Unlocking features
 
 
 ---
-# SOLVED!
-
-#crackme
+So the solution is to calculate serials manually or to use script.
